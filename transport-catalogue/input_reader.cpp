@@ -11,9 +11,8 @@ namespace transport_catalogue::input {
     void InputRequest(TransportCatalogue& catalogue) {
         int base_request_count;
         std::cin >> base_request_count >> std::ws;
-
         {
-            transport_catalogue::input::InputReader reader;
+            InputReader reader;
             for (int i = 0; i < base_request_count; ++i) {
                 std::string line;
                 std::getline(std::cin, line);
