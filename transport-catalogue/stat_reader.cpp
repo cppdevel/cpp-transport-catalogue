@@ -5,6 +5,17 @@
 
 namespace transport_catalogue::output {
 
+    void OutputRequest(const TransportCatalogue& catalogue) {
+        using namespace std::string_literals;
+        int stat_request_count;
+        std::cin >> stat_request_count >> std::ws;
+        for (int i = 0; i < stat_request_count; ++i) {
+            std::string line;
+            std::getline(std::cin, line);
+            transport_catalogue::output::ParseAndPrintStat(catalogue, line, std::cout);
+        }
+    }
+
     void ParseAndPrintStat(const TransportCatalogue& tansport_catalogue, std::string_view request,
         std::ostream& output) {
         using namespace std::string_literals;

@@ -9,6 +9,8 @@
 
 namespace transport_catalogue::input {
 
+    void InputRequest(TransportCatalogue& catalogue);
+
     struct CommandDescription {
         explicit operator bool() const {
             return !command.empty();

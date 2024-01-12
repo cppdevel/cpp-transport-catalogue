@@ -35,8 +35,8 @@ namespace transport_catalogue {
 	class TransportCatalogue {
 	public:
 		void AddStop(std::string_view stop_name, geo::Coordinates coordinates);
-		void AddStopToBus(std::vector<std::string_view> stops_from_request, std::string_view bus_name);
-		void AddBusToStop(std::vector<std::string_view> stops_from_request, std::string_view bus_name);
+		void AddStopToBus(const std::vector<std::string_view>& stops_from_request, std::string_view bus_name);
+		void AddBusToStop(const std::vector<std::string_view>& stops_from_request, std::string_view bus_name);
 		Stop* FindStop(std::string_view stop_name) const;
 
 		void AddBus(std::string_view bus_name, BusType bus_type);

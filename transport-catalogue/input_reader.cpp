@@ -1,11 +1,27 @@
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <iterator>
 #include <unordered_set>
 
 #include "input_reader.h"
 
 namespace transport_catalogue::input {
+
+    void InputRequest(TransportCatalogue& catalogue) {
+        int base_request_count;
+        std::cin >> base_request_count >> std::ws;
+
+        {
+            transport_catalogue::input::InputReader reader;
+            for (int i = 0; i < base_request_count; ++i) {
+                std::string line;
+                std::getline(std::cin, line);
+                reader.ParseLine(line);
+            }
+            reader.ApplyCommands(catalogue);
+        }
+    }
 
     geo::Coordinates ParseCoordinates(std::string_view str) {
         static const double nan = std::nan("");

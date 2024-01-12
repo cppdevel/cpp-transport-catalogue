@@ -10,14 +10,14 @@ namespace transport_catalogue {
 		stopname_to_stop_.insert({ stops_.back().name, &stops_.back() });
 	}
 
-	void TransportCatalogue::AddStopToBus(std::vector<std::string_view> stops_from_request, std::string_view bus_name) {
+	void TransportCatalogue::AddStopToBus(const std::vector<std::string_view>& stops_from_request, std::string_view bus_name) {
 		for (auto stop : stops_from_request) {
 			auto bus = FindBus(bus_name);
 			bus->stops.push_back(stopname_to_stop_.at(stop));
 		}
 	}
 
-	void TransportCatalogue::AddBusToStop(std::vector<std::string_view> stops_from_request, std::string_view bus_name) {
+	void TransportCatalogue::AddBusToStop(const std::vector<std::string_view>& stops_from_request, std::string_view bus_name) {
 		for (auto stop : stops_from_request) {
 			stopname_to_stop_.at(stop)->buses.push_back(FindBus(bus_name));
 		}
