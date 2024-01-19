@@ -23,25 +23,7 @@ namespace transport_catalogue::input {
         }
     }
 
-    geo::Coordinates ParseCoordinates(std::string_view str) {
-        static const double nan = std::nan("");
-
-        auto not_space = str.find_first_not_of(' ');
-        auto comma = str.find(',');
-
-        if (comma == str.npos) {
-            return { nan, nan };
-        }
-
-        auto not_space2 = str.find_first_not_of(' ', comma + 1);
-
-        double lat = std::stod(std::string(str.substr(not_space, comma - not_space)));
-        double lng = std::stod(std::string(str.substr(not_space2)));
-
-        return { lat, lng };
-    }
-
-    std::string_view Trim(std::string_view string) {
+std::string_view Trim(std::string_view string) {
         const auto start = string.find_first_not_of(' ');
         if (start == string.npos) {
             return {};
