@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <iterator>
+#include <string>
 #include <unordered_set>
 
 #include "input_reader.h"
@@ -113,10 +114,46 @@ namespace transport_catalogue::input {
         }
     }
 
+    std::vector<std::string_view> ParseDescription(std::string_view description) {
+        auto parsed_description = Split(description, ',');
+        return parsed_description;
+    }
+
+    geo::Coordinates GetCoordinatesFromDescription(const std::vector<std::string_view>& parsed_description) {
+        double lat = std::stod(std::string(parsed_description[0]));
+        double lng = std::stod(std::string(parsed_description[1]));
+        return { lat, lng };
+    }
+
+    std::vector<Distance> GetDistancesFromDescription(const TransportCatalogue& catalogue, std::string_view stop_from, const std::vector<std::string_view>& parsed_description) {
+        if (parsed_description.size() > 2) {
+            std::vector<std::string_view> distances;
+            for (auto i = 2; i < parsed_description.size(); ++i) {
+                distances.push_back(parsed_description[i]);
+            }
+            std::vector<Distance> distances_from_request(distances.size());
+            for (auto i = 0; i < distances.size(); ++i) {
+                auto str = distances[i];
+                uint64_t distance = std::stoi(std::string(str.substr(0, str.find('m'))));
+                auto stop_to = str.substr(str.find('m') + 5);
+                distances_from_request[i].stop_from = catalogue.FindStop(stop_from);
+                distances_from_request[i].stop_to = catalogue.FindStop(stop_to);
+                distances_from_request[i].distance = distance;
+            }
+            return distances_from_request;
+        }
+        return {};
+    }
+
     void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) const {
         for (auto& comm : commands_) {
             if (comm.command == "Stop") {
-                catalogue.AddStop(comm.id, ParseCoordinates(comm.description));
+                catalogue.AddStop(comm.id, GetCoordinatesFromDescription(ParseDescription(comm.description)));
+            }
+        }
+        for (auto& comm : commands_) {
+            if (comm.command == "Stop") {
+                catalogue.SetDistance(GetDistancesFromDescription(catalogue, comm.id, ParseDescription(comm.description)));
             }
         }
         for (auto& comm : commands_) {

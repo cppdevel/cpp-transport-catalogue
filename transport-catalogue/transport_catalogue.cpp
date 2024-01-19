@@ -30,6 +30,22 @@ namespace transport_catalogue {
 		return stopname_to_stop_.at(stop_name);
 	}
 
+	void TransportCatalogue::SetDistance(const std::vector<Distance>& distances_from_request) {
+		for (auto dist : distances_from_request) {
+			distances_[std::make_pair(dist.stop_from, dist.stop_to)] = dist.distance;
+		}
+	}
+
+	uint64_t TransportCatalogue::GetDistance(const Stop* stop_from, const Stop* stop_to) const {
+		if (distances_.count({ stop_from, stop_to }) > 0) {
+			return distances_.at(std::make_pair(stop_from, stop_to));
+		}
+		if (distances_.count({ stop_to, stop_from }) > 0) {
+			return distances_.at(std::make_pair(stop_to, stop_from));
+		}
+		return 0;
+	}
+
 	void TransportCatalogue::AddBus(std::string_view bus_name, BusType bus_type_from_request) {
 		Bus bus;
 		bus.name = bus_name;
@@ -73,13 +89,25 @@ namespace transport_catalogue {
 			return static_cast<int>(unique_stops_set.size());
 		}
 
-		double CalculateRouteLength(Bus* bus) {
-			double route_length = 0.0;
+		double CalculateRouteGeographicalLength(const Bus* bus) {
+			double geographical_length = 0.0;
 			for (auto i = 1; i < bus->stops.size(); ++i) {
 				auto left_stop = bus->stops[i - 1], right_stop = bus->stops[i];
-				route_length += geo::ComputeDistance(left_stop->coordinates, right_stop->coordinates);
+				geographical_length += geo::ComputeDistance(left_stop->coordinates, right_stop->coordinates);
 			}
-			return route_length;
+			return geographical_length;
+		}
+
+		int CalculateRouteRoadLength(const TransportCatalogue& catalogue, const Bus* bus) {
+			int road_length = 0;
+			for (auto i = 0; i < bus->stops.size() - 1; ++i) {
+				road_length += catalogue.GetDistance(bus->stops[i], bus->stops[i + 1]);
+			}
+			return road_length;
+		}
+
+		double CalculateRouteCurvature(const TransportCatalogue& catalogue, const Bus* bus) {
+			return static_cast<double>(CalculateRouteRoadLength(catalogue, bus) / CalculateRouteGeographicalLength(bus));
 		}
 
 	}
