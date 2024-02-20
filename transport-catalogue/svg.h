@@ -246,49 +246,4 @@ namespace svg {
         std::string data_ = "";
     };
 
-    namespace shapes {
-        class Triangle : public Drawable {
-        public:
-            Triangle(svg::Point p1, svg::Point p2, svg::Point p3)
-                : p1_(p1)
-                , p2_(p2)
-                , p3_(p3) {
-            }
-
-            void Draw(svg::ObjectContainer& container) const override;
-
-        private:
-            svg::Point p1_, p2_, p3_;
-        };
-
-        class Snowman : public Drawable {
-        public:
-            Snowman(svg::Point head, double radius)
-                : head_(head)
-                , radius_(radius)
-            {
-            }
-
-            void Draw(svg::ObjectContainer& container) const override;
-
-        private:
-            svg::Point head_;
-            double radius_;
-        };
-
-        class Star : public Drawable {
-        public:
-            Star(svg::Point center, double outer_rad, double inner_rad, int num_rays) {
-                polilyne_ = CreateStar(center, outer_rad, inner_rad, num_rays);
-            }
-
-            void Draw(svg::ObjectContainer& container) const override;
-
-        private:
-            svg::Polyline CreateStar(svg::Point center, double outer_rad, double inner_rad, int num_rays);
-
-            svg::Polyline polilyne_;
-        };
-    } // namespace shapes
-
 }  // namespace svg
