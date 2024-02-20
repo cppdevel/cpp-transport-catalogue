@@ -198,47 +198,4 @@ namespace svg {
         out << "\">"sv << data_ << "</text>"sv;
     }
 
-    namespace shapes {
-
-        void Triangle::Draw(svg::ObjectContainer& container) const {
-            container.Add(svg::Polyline().AddPoint(p1_).AddPoint(p2_).AddPoint(p3_).AddPoint(p1_));
-        }
-
-        void Snowman::Draw(svg::ObjectContainer& container) const {
-            Circle head;
-            head.SetCenter(head_).SetRadius(radius_).SetFillColor("rgb(240,240,240)").SetStrokeColor("black");
-
-            Circle body;
-            body.SetCenter({ head_.x, head_.y + radius_ * 2 }).SetRadius(radius_ * 1.5).SetFillColor("rgb(240,240,240)").SetStrokeColor("black");
-
-            Circle bottom;
-            bottom.SetCenter({ head_.x, head_.y + radius_ * 5 }).SetRadius(radius_ * 2).SetFillColor("rgb(240,240,240)").SetStrokeColor("black");
-
-            container.Add(bottom);
-            container.Add(body);
-            container.Add(head);
-        }
-
-        void Star::Draw(svg::ObjectContainer& container) const {
-            container.Add(polilyne_);
-        }
-
-        Polyline Star::CreateStar(svg::Point center, double outer_rad, double inner_rad, int num_rays) {
-
-            Polyline polyline;
-            polyline.SetFillColor("red").SetStrokeColor("black");
-
-            for (int i = 0; i <= num_rays; ++i) {
-                double angle = 2 * M_PI * (i % num_rays) / num_rays;
-                polyline.AddPoint({ center.x + outer_rad * sin(angle), center.y - outer_rad * cos(angle) });
-                if (i == num_rays) {
-                    break;
-                }
-                angle += M_PI / num_rays;
-                polyline.AddPoint({ center.x + inner_rad * sin(angle), center.y - inner_rad * cos(angle) });
-            }
-            return polyline;
-        }
-    } // namespace shapes
-
 }  // namespace svg
