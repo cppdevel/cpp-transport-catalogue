@@ -3,7 +3,7 @@
 namespace transport_catalogue {
 
 	void TransportCatalogue::AddStop(std::string_view stop_name, geo::Coordinates coordinates) {
-		Stop stop;
+		domain::Stop stop;
 		stop.name = stop_name;
 		stop.coordinates = coordinates;
 		stops_.push_back(std::move(stop));
@@ -23,20 +23,20 @@ namespace transport_catalogue {
 		}
 	}
 
-	Stop* TransportCatalogue::FindStop(std::string_view stop_name) const {
+	domain::Stop* TransportCatalogue::FindStop(std::string_view stop_name) const {
 		if (stopname_to_stop_.empty() || stopname_to_stop_.count(stop_name) == 0) {
 			return nullptr;
 		}
 		return stopname_to_stop_.at(stop_name);
 	}
 
-	void TransportCatalogue::SetDistance(const std::vector<Distance>& distances_from_request) {
+	void TransportCatalogue::SetDistance(std::vector<domain::Distance> distances_from_request) {
 		for (auto dist : distances_from_request) {
 			distances_[std::make_pair(dist.stop_from, dist.stop_to)] = dist.distance;
 		}
 	}
 
-	uint64_t TransportCatalogue::GetDistance(const Stop* stop_from, const Stop* stop_to) const {
+	int TransportCatalogue::GetDistance(const domain::Stop* stop_from, const domain::Stop* stop_to) const {
 		if (distances_.count({ stop_from, stop_to }) > 0) {
 			return distances_.at(std::make_pair(stop_from, stop_to));
 		}
@@ -46,30 +46,38 @@ namespace transport_catalogue {
 		return 0;
 	}
 
-	void TransportCatalogue::AddBus(std::string_view bus_name, BusType bus_type_from_request) {
-		Bus bus;
+	void TransportCatalogue::AddBus(std::string_view bus_name, domain::BusType bus_type_from_request) {
+		domain::Bus bus;
 		bus.name = bus_name;
-		if (bus_type_from_request == BusType::CIRCULAR) {
-			bus.bus_type = BusType::CIRCULAR;
+		if (bus_type_from_request == domain::BusType::CIRCULAR) {
+			bus.bus_type = domain::BusType::CIRCULAR;
 		}
 		else {
-			bus.bus_type = BusType::ORDINARY;
+			bus.bus_type = domain::BusType::ORDINARY;
 		}
 		buses_.push_back(std::move(bus));
 		busname_to_bus_.insert({ buses_.back().name, &buses_.back() });
 	}
 
-	Bus* TransportCatalogue::FindBus(std::string_view bus_name) const {
+	domain::Bus* TransportCatalogue::FindBus(std::string_view bus_name) const {
 		if (busname_to_bus_.empty() || busname_to_bus_.count(bus_name) == 0) {
 			return nullptr;
 		}
 		return busname_to_bus_.at(bus_name);
 	}
 
+	std::map<std::string_view, domain::Bus*> TransportCatalogue::GetSortedBuses() const {
+		std::map<std::string_view, domain::Bus*> sorted_buses;
+		for (auto& bus : busname_to_bus_) {
+			sorted_buses.emplace(bus);
+		}
+		return sorted_buses;
+	}
+
 	namespace detail {
 
-		std::vector<std::string> GetSortedUniqueBuses(Stop* stop) {
-			std::unordered_set<Bus*> unique_buses_from_stop;
+		std::vector<std::string> GetSortedUniqueBuses(const domain::Stop* stop) {
+			std::unordered_set<domain::Bus*> unique_buses_from_stop;
 			unique_buses_from_stop.insert(stop->buses.begin(), stop->buses.end());
 			std::vector<std::string> sorted_unique_buses;
 			for (auto bus : unique_buses_from_stop) {
@@ -79,17 +87,17 @@ namespace transport_catalogue {
 			return sorted_unique_buses;
 		}
 
-		int CalculateStops(Bus* bus) {
+		int CalculateStops(const domain::Bus* bus) {
 			return static_cast<int>(bus->stops.size());
 		}
 
-		int CalculateUniqueStops(Bus* bus) {
-			std::unordered_set<Stop*> unique_stops_set;
+		int CalculateUniqueStops(const domain::Bus* bus) {
+			std::unordered_set<domain::Stop*> unique_stops_set;
 			unique_stops_set.insert(bus->stops.begin(), bus->stops.end());
 			return static_cast<int>(unique_stops_set.size());
 		}
 
-		double CalculateRouteGeographicalLength(const Bus* bus) {
+		double CalculateRouteGeographicalLength(const domain::Bus* bus) {
 			double geographical_length = 0.0;
 			for (auto i = 1; i < bus->stops.size(); ++i) {
 				auto left_stop = bus->stops[i - 1], right_stop = bus->stops[i];
@@ -98,7 +106,7 @@ namespace transport_catalogue {
 			return geographical_length;
 		}
 
-		int CalculateRouteRoadLength(const TransportCatalogue& catalogue, const Bus* bus) {
+		int CalculateRouteRoadLength(const TransportCatalogue& catalogue, const domain::Bus* bus) {
 			int road_length = 0;
 			for (auto i = 0; i < bus->stops.size() - 1; ++i) {
 				road_length += catalogue.GetDistance(bus->stops[i], bus->stops[i + 1]);
@@ -106,10 +114,10 @@ namespace transport_catalogue {
 			return road_length;
 		}
 
-		double CalculateRouteCurvature(const TransportCatalogue& catalogue, const Bus* bus) {
+		double CalculateRouteCurvature(const TransportCatalogue& catalogue, const domain::Bus* bus) {
 			return static_cast<double>(CalculateRouteRoadLength(catalogue, bus) / CalculateRouteGeographicalLength(bus));
 		}
 
 	}
 
-}
+} // namespace transport_catalogue
