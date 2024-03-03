@@ -1,6 +1,7 @@
 #pragma once
 
 #include "json.h"
+#include "json_builder.h"
 #include "map_renderer.h"
 #include "request_handler.h"
 #include "transport_catalogue.h"
@@ -29,9 +30,9 @@ namespace json_reader {
 
 		void FillTransportCatalogue(transport_catalogue::TransportCatalogue& catalogue);
 
-		json::Node PrepareToPrintStopStat(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue) const;
-		json::Node PrepareToPrintBusStat(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue) const;
-		json::Node PrepareToPrintMap(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue, const map_renderer::MapRenderer& map_renderer) const;
+		json::Node BuildStopRequest(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue) const;
+		json::Node BuildBusRequest(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue) const;
+		json::Node BuildMapRequest(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue, const map_renderer::MapRenderer& map_renderer) const;
 
 		void PrintStat(const transport_catalogue::TransportCatalogue& catalogue) const;
 

@@ -137,12 +137,18 @@ namespace json_reader {
 		}
 	}
 
-	json::Node JsonReader::PrepareToPrintStopStat(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue) const {
-		json::Dict result_dict;
-		result_dict["request_id"] = dict.at("id").AsInt();
+	json::Node JsonReader::BuildStopRequest(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue) const {
+		json::Node answer;
+		int request_id = dict.at("id").AsInt();
 		auto stop = catalogue.FindStop(dict.at("name").AsString());
 		if (stop == nullptr) {
-			result_dict["error_message"] = json::Node{ static_cast<std::string>("not found") };
+			answer =
+				json::Builder{}
+				.StartDict()
+				.Key("error_message").Value("not found")
+				.Key("request_id").Value(request_id)
+				.EndDict()
+				.Build();
 		}
 		else {
 			json::Array buses;
@@ -150,36 +156,64 @@ namespace json_reader {
 			for (auto& bus_name : unique_buses) {
 				buses.push_back(bus_name);
 			}
-			result_dict["buses"] = buses;
+			answer =
+				json::Builder{}
+				.StartDict()
+				.Key("buses").Value(buses)
+				.Key("request_id").Value(request_id)
+				.EndDict()
+				.Build();
 		}
-		return json::Node{result_dict};
+		return answer;
 	}
 
-	json::Node JsonReader::PrepareToPrintBusStat(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue) const {
-		json::Dict result_dict;
-		result_dict["request_id"] = dict.at("id").AsInt();
+	json::Node JsonReader::BuildBusRequest(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue) const {
+		json::Node answer;
+		auto request_id = dict.at("id").AsInt();
 		auto bus = catalogue.FindBus(dict.at("name").AsString());
 		if (bus == nullptr) {
-			result_dict["error_message"] = json::Node{ static_cast<std::string>("not found") };
+			answer =
+				json::Builder{}
+				.StartDict()
+				.Key("error_message").Value("not found")
+				.Key("request_id").Value(request_id)
+				.EndDict()
+				.Build();
 		}
 		else {
-			result_dict["curvature"] = transport_catalogue::detail::CalculateRouteCurvature(catalogue, bus);
-			result_dict["route_length"] = transport_catalogue::detail::CalculateRouteRoadLength(catalogue, bus);
-			result_dict["stop_count"] = transport_catalogue::detail::CalculateStops(bus);
-			result_dict["unique_stop_count"] = transport_catalogue::detail::CalculateUniqueStops(bus);
+			auto curvature = transport_catalogue::detail::CalculateRouteCurvature(catalogue, bus);
+			auto route_length = transport_catalogue::detail::CalculateRouteRoadLength(catalogue, bus);
+			auto stop_count = transport_catalogue::detail::CalculateStops(bus);
+			auto unique_stop_count = transport_catalogue::detail::CalculateUniqueStops(bus);
+			answer =
+				json::Builder{}
+				.StartDict()
+				.Key("curvature").Value(curvature)
+				.Key("route_length").Value(route_length)
+				.Key("stop_count").Value(stop_count)
+				.Key("unique_stop_count").Value(unique_stop_count)
+				.Key("request_id").Value(request_id)
+				.EndDict()
+				.Build();
 		}
-		return json::Node{result_dict};
+		return answer;
 	}
 
-	json::Node JsonReader::PrepareToPrintMap(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue, const map_renderer::MapRenderer& map_renderer) const {
-		json::Dict result_dict;
-		result_dict["request_id"] = dict.at("id").AsInt();
+	json::Node JsonReader::BuildMapRequest(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue, const map_renderer::MapRenderer& map_renderer) const {
+		json::Node answer;
+		int request_id = dict.at("id").AsInt();
 		request_handler::RequestHandler request_handler{catalogue, map_renderer};
 		svg::Document map = request_handler.RenderMap();
 		std::ostringstream oss;
 		map.Render(oss);
-		result_dict["map"] = oss.str();
-		return result_dict;
+		answer =
+			json::Builder{}
+			.StartDict()
+			.Key("request_id").Value(request_id)
+			.Key("map").Value(oss.str())
+			.EndDict()
+			.Build();
+		return answer;
 	}
 
 	void JsonReader::PrintStat(const transport_catalogue::TransportCatalogue& catalogue) const {
@@ -187,15 +221,15 @@ namespace json_reader {
 		json::Array stat_requests = GetStatRequests().AsArray();
 		for (auto& request : stat_requests) {
 			if (request.AsMap().at("type").AsString() == "Stop") {
-				stat_to_print.push_back(PrepareToPrintStopStat(request.AsMap(), catalogue).AsMap());
+				stat_to_print.push_back(BuildStopRequest(request.AsMap(), catalogue).AsMap());
 			}
 			if (request.AsMap().at("type").AsString() == "Bus") {
-				stat_to_print.push_back(PrepareToPrintBusStat(request.AsMap(), catalogue).AsMap());
+				stat_to_print.push_back(BuildBusRequest(request.AsMap(), catalogue).AsMap());
 			}
 			if (request.AsMap().at("type").AsString() == "Map") {
 				json::Dict render_settings = GetRenderSettings().AsMap();
 				map_renderer::MapRenderer map_renderer = GetMapRenderer(render_settings);
-				stat_to_print.push_back(PrepareToPrintMap(request.AsMap(), catalogue, map_renderer).AsMap());
+				stat_to_print.push_back(BuildMapRequest(request.AsMap(), catalogue, map_renderer).AsMap());
 			}
 		}
 		json::Print(json::Document{stat_to_print}, std::cout);

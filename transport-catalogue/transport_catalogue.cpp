@@ -99,7 +99,7 @@ namespace transport_catalogue {
 
 		double CalculateRouteGeographicalLength(const domain::Bus* bus) {
 			double geographical_length = 0.0;
-			for (auto i = 1; i < bus->stops.size(); ++i) {
+			for (uint64_t i = 1; i < bus->stops.size(); ++i) {
 				auto left_stop = bus->stops[i - 1], right_stop = bus->stops[i];
 				geographical_length += geo::ComputeDistance(left_stop->coordinates, right_stop->coordinates);
 			}
@@ -108,7 +108,7 @@ namespace transport_catalogue {
 
 		int CalculateRouteRoadLength(const TransportCatalogue& catalogue, const domain::Bus* bus) {
 			int road_length = 0;
-			for (auto i = 0; i < bus->stops.size() - 1; ++i) {
+			for (uint64_t i = 0; i < bus->stops.size() - 1; ++i) {
 				road_length += catalogue.GetDistance(bus->stops[i], bus->stops[i + 1]);
 			}
 			return road_length;

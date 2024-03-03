@@ -42,7 +42,9 @@ namespace json {
         double AsDouble() const;
         const std::string& AsString() const;
         const Array& AsArray() const;
+        Array& AsArrayNonConstant(); // для json_builder
         const Dict& AsMap() const;
+        Dict& AsMapNonConstant(); // для json_builder
 
         friend bool operator==(const Node& lhs, const Node& rhs);
         friend bool operator!=(const Node& lhs, const Node& rhs);

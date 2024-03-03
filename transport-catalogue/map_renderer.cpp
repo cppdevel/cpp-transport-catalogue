@@ -8,7 +8,7 @@ namespace map_renderer {
 
 	std::vector<svg::Polyline> MapRenderer::DrawRoute(const std::map<std::string_view, domain::Bus*>& buses, SphereProjector& sphere_projector) const {
 		std::vector<svg::Polyline> polylines;
-		int color_palette_num = 0;
+		uint64_t color_palette_num = 0;
 		for (auto& [bus_name, bus_ptr] : buses) {
 			if (bus_ptr->stops.size() == 0) {
 				continue;
@@ -35,7 +35,7 @@ namespace map_renderer {
 
 	std::vector<svg::Text> MapRenderer::DrawBusName(const std::map<std::string_view, domain::Bus*>& buses, SphereProjector& sphere_projector) const {
 		std::vector<svg::Text> texts;
-		int color_palette_num = 0;
+		uint64_t color_palette_num = 0;
 		for (auto& [bus_name, bus_ptr] : buses) {
 			if (bus_ptr->stops.size() == 0) {
 				continue;

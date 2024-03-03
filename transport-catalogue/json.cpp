@@ -309,7 +309,25 @@ namespace json {
         }
     }
 
+    Array& Node::AsArrayNonConstant() {
+        if (IsArray()) {
+            return std::get<Array>(*this);
+        }
+        else {
+            throw std::logic_error("Node doesn`t contain Array");
+        }
+    }
+
     const Dict& Node::AsMap() const {
+        if (IsMap()) {
+            return std::get<Dict>(*this);
+        }
+        else {
+            throw std::logic_error("Node doesn`t contain Dict");
+        }
+    }
+
+    Dict& Node::AsMapNonConstant() {
         if (IsMap()) {
             return std::get<Dict>(*this);
         }
