@@ -5,6 +5,7 @@
 #include "map_renderer.h"
 #include "request_handler.h"
 #include "transport_catalogue.h"
+#include "transport_router.h"
 
 #include <map>
 #include <sstream>
@@ -21,6 +22,7 @@ namespace json_reader {
 		json::Node GetBaseRequests() const;
 		json::Node GetRenderSettings() const;
 		json::Node GetStatRequests() const;
+		json::Node GetRoutingSettings() const;
 
 		request_handler::StopStat GetStopFromRequest(const json::Dict& dict) const;
 		std::vector<domain::Distance> GetDistancesFromRequest(const request_handler::StopStat& stop_stat, transport_catalogue::TransportCatalogue& catalogue) const;
@@ -33,6 +35,7 @@ namespace json_reader {
 		json::Node BuildStopRequest(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue) const;
 		json::Node BuildBusRequest(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue) const;
 		json::Node BuildMapRequest(const json::Dict& dict, const transport_catalogue::TransportCatalogue& catalogue, const map_renderer::MapRenderer& map_renderer) const;
+		json::Node BuildRouteRequest(const json::Dict& dict, const transport_router::TransportRouter& transport_router) const;
 
 		void PrintStat(const transport_catalogue::TransportCatalogue& catalogue) const;
 

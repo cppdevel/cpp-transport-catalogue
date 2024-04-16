@@ -18,7 +18,7 @@ namespace domain {
 	enum class BusType {
 		DEFAULT,
 		CIRCULAR,
-		ORDINARY
+		LINEAR
 	};
 
 	struct Bus {

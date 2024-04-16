@@ -27,6 +27,7 @@ namespace transport_catalogue {
 		void AddStopToBus(const std::vector<std::string_view>& stops_from_request, std::string_view bus_name);
 		void AddBusToStop(const std::vector<std::string_view>& stops_from_request, std::string_view bus_name);
 		domain::Stop* FindStop(std::string_view stop_name) const;
+		std::map<std::string_view, domain::Stop*> GetSortedStops() const;
 
 		void SetDistance(std::vector<domain::Distance> distances_from_request);
 		int GetDistance(const domain::Stop* stop_from, const domain::Stop* stop_to) const;

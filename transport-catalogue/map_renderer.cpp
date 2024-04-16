@@ -68,7 +68,7 @@ namespace map_renderer {
 				++color_palette_num;
 			}
 			texts.push_back(text);
-			if (bus_ptr->bus_type == domain::BusType::ORDINARY && (bus_ptr->stops[0] != bus_ptr->stops[bus_ptr->stops.size() / 2])) {
+			if (bus_ptr->bus_type == domain::BusType::LINEAR && (bus_ptr->stops[0] != bus_ptr->stops[bus_ptr->stops.size() / 2])) {
 				svg::Text second_substrate = substrate;
 				second_substrate.SetPosition(sphere_projector(bus_ptr->stops[bus_ptr->stops.size() / 2]->coordinates));
 				texts.push_back(second_substrate);

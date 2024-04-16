@@ -30,6 +30,14 @@ namespace transport_catalogue {
 		return stopname_to_stop_.at(stop_name);
 	}
 
+	std::map<std::string_view, domain::Stop*> TransportCatalogue::GetSortedStops() const {
+		std::map<std::string_view, domain::Stop*> sorted_stops;
+		for (auto& stop : stopname_to_stop_) {
+			sorted_stops.emplace(stop);
+		}
+		return sorted_stops;
+	}
+
 	void TransportCatalogue::SetDistance(std::vector<domain::Distance> distances_from_request) {
 		for (auto dist : distances_from_request) {
 			distances_[std::make_pair(dist.stop_from, dist.stop_to)] = dist.distance;
@@ -53,7 +61,7 @@ namespace transport_catalogue {
 			bus.bus_type = domain::BusType::CIRCULAR;
 		}
 		else {
-			bus.bus_type = domain::BusType::ORDINARY;
+			bus.bus_type = domain::BusType::LINEAR;
 		}
 		buses_.push_back(std::move(bus));
 		busname_to_bus_.insert({ buses_.back().name, &buses_.back() });
