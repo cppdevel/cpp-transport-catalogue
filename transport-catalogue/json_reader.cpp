@@ -240,9 +240,9 @@ namespace json_reader {
 		}
 		else {
 			json::Array items;
-			const auto edges = transport_router.GetEdgesVector(optimal_route.value());
 			double total_time = 0.0;
-			for (auto& edge : edges) {
+			for (auto& edge_id : optimal_route.value().edges) {
+				const auto& edge = transport_router.GetGraph().GetEdge(edge_id);
 				total_time += edge.weight;
 				if (edge.items_type == graph::ItemsType::WAIT) {
 					items.emplace_back(json::Node(json::Builder{}
